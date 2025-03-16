@@ -78,7 +78,7 @@ const getStrategyDescription = (strategy: string = ""): string => {
 
   // Verificar se a estratégia existe no mapa, caso contrário retornar uma descrição genérica
   if (!strategy || !descriptions[strategy]) {
-    return "Esta estratégia é personalizada com base no seu perfil de risco e horizonte de investimento. Ela combina elementos de diversas abordagens para criar uma alocação que atenda às suas necessidades específicas.";
+    return `Esta estratégia é personalizada com base no seu perfil de risco ${strategy ? `(${strategy})` : ""} e horizonte de investimento. Ela combina elementos de diversas abordagens para criar uma alocação que atenda às suas necessidades específicas.`;
   }
 
   return descriptions[strategy];

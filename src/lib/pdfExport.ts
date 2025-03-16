@@ -3,168 +3,176 @@ import "jspdf-autotable";
 import { Recomendacao } from "./db";
 
 // Função para exportar uma recomendação como PDF
-export const exportRecommendationToPDF = (recommendation: Recomendacao) => {
-  try {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    let yPosition = margin;
+export const exportRecommendationToPDF = (
+  recommendation: Recomendacao,
+): Promise<boolean> => {
+  return new Promise((resolve) => {
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      let yPosition = margin;
 
-    // Adicionar cabeçalho
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    const title = "Relatório de Alocação de Investimentos";
-    doc.text(title, pageWidth / 2, yPosition, { align: "center" });
-    yPosition += 10;
+      // Adicionar cabeçalho
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      const title = "Relatório de Alocação de Investimentos";
+      doc.text(title, pageWidth / 2, yPosition, { align: "center" });
+      yPosition += 10;
 
-    // Adicionar data
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const date = new Date(recommendation.data).toLocaleDateString();
-    doc.text(`Data: ${date}`, pageWidth / 2, yPosition, { align: "center" });
-    yPosition += 15;
+      // Adicionar data
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      const date = new Date(recommendation.data).toLocaleDateString();
+      doc.text(`Data: ${date}`, pageWidth / 2, yPosition, { align: "center" });
+      yPosition += 15;
 
-    // Adicionar informações do cliente
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Informações do Cliente", margin, yPosition);
-    yPosition += 8;
+      // Adicionar informações do cliente
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Informações do Cliente", margin, yPosition);
+      yPosition += 8;
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `Nome: ${recommendation.nomeCliente || "Cliente"}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 6;
-
-    if (recommendation.idadeCliente) {
-      doc.text(`Idade: ${recommendation.idadeCliente} anos`, margin, yPosition);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Nome: ${recommendation.nomeCliente || "Cliente"}`,
+        margin,
+        yPosition,
+      );
       yPosition += 6;
+
+      if (recommendation.idadeCliente) {
+        doc.text(
+          `Idade: ${recommendation.idadeCliente} anos`,
+          margin,
+          yPosition,
+        );
+        yPosition += 6;
+      }
+
+      doc.text(
+        `Perfil de Risco: ${recommendation.perfilRisco || "Moderado"}`,
+        margin,
+        yPosition,
+      );
+      yPosition += 6;
+
+      doc.text(
+        `Horizonte de Investimento: ${recommendation.horizonteInvestimento || "5 anos (Médio Prazo)"}`,
+        margin,
+        yPosition,
+      );
+      yPosition += 6;
+
+      doc.text(
+        `Valor do Investimento: ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(recommendation.valorInvestimento || 100000)}`,
+        margin,
+        yPosition,
+      );
+      yPosition += 15;
+
+      // Adicionar estratégia
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Estratégia de Investimento", margin, yPosition);
+      yPosition += 8;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Estratégia: ${recommendation.estrategia || "Alocação Personalizada"}`,
+        margin,
+        yPosition,
+      );
+      yPosition += 10;
+
+      // Adicionar descrição e princípios da estratégia
+      yPosition = adicionarInformacoesEstrategia(
+        doc,
+        recommendation.estrategia || "",
+        yPosition,
+        margin,
+        pageWidth,
+      );
+
+      // Adicionar tabela de alocação de ativos
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Alocação de Ativos", margin, yPosition);
+      yPosition += 10;
+
+      // Verificar se há espaço suficiente para a tabela, caso contrário, adicionar nova página
+      if (
+        yPosition + (recommendation.alocacaoAtivos?.length || 0) * 10 + 20 >
+        pageHeight
+      ) {
+        doc.addPage();
+        yPosition = margin;
+      }
+
+      // Criar tabela de alocação
+      const defaultAlocacao = [
+        { nome: "Ações", percentual: 40, cor: "#4f46e5" },
+        { nome: "Renda Fixa", percentual: 40, cor: "#10b981" },
+        { nome: "Alternativos", percentual: 15, cor: "#f59e0b" },
+        { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+      ];
+
+      const alocacaoAtivos =
+        recommendation.alocacaoAtivos?.length > 0
+          ? recommendation.alocacaoAtivos
+          : defaultAlocacao;
+
+      const tableData = alocacaoAtivos.map((ativo) => [
+        ativo.nome,
+        `${ativo.percentual}%`,
+        `${Math.max(0, ativo.percentual - 5)}% - ${Math.min(100, ativo.percentual + 5)}%`,
+      ]);
+
+      (doc as any).autoTable({
+        startY: yPosition,
+        head: [["Classe de Ativo", "Alocação", "Faixa Alvo"]],
+        body: tableData,
+        theme: "grid",
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        margin: { left: margin, right: margin },
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 15;
+
+      // Adicionar rodapé
+      if (yPosition + 20 > pageHeight) {
+        doc.addPage();
+        yPosition = margin;
+      }
+
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      const disclaimer =
+        "Este relatório é apenas para fins informativos e não constitui aconselhamento de investimento. " +
+        "Os valores e projeções apresentados são baseados em dados históricos e não garantem resultados futuros. " +
+        "Consulte um profissional financeiro antes de tomar decisões de investimento.";
+
+      const disclaimerLines = doc.splitTextToSize(
+        disclaimer,
+        pageWidth - margin * 2,
+      );
+      doc.text(disclaimerLines, margin, pageHeight - 20);
+
+      // Salvar o PDF
+      const clientName = recommendation.nomeCliente || "cliente";
+      doc.save(
+        `relatorio_investimento_${clientName.replace(/\s+/g, "_")}_${date.replace(/\//g, "-")}.pdf`,
+      );
+
+      resolve(true);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      resolve(false);
     }
-
-    doc.text(
-      `Perfil de Risco: ${recommendation.perfilRisco || "Moderado"}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 6;
-
-    doc.text(
-      `Horizonte de Investimento: ${recommendation.horizonteInvestimento || "5 anos (Médio Prazo)"}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 6;
-
-    doc.text(
-      `Valor do Investimento: ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(recommendation.valorInvestimento || 100000)}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 15;
-
-    // Adicionar estratégia
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Estratégia de Investimento", margin, yPosition);
-    yPosition += 8;
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `Estratégia: ${recommendation.estrategia || "Alocação Personalizada"}`,
-      margin,
-      yPosition,
-    );
-    yPosition += 10;
-
-    // Adicionar descrição e princípios da estratégia
-    yPosition = adicionarInformacoesEstrategia(
-      doc,
-      recommendation.estrategia || "",
-      yPosition,
-      margin,
-      pageWidth,
-    );
-
-    // Adicionar tabela de alocação de ativos
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Alocação de Ativos", margin, yPosition);
-    yPosition += 10;
-
-    // Verificar se há espaço suficiente para a tabela, caso contrário, adicionar nova página
-    if (
-      yPosition + (recommendation.alocacaoAtivos?.length || 0) * 10 + 20 >
-      pageHeight
-    ) {
-      doc.addPage();
-      yPosition = margin;
-    }
-
-    // Criar tabela de alocação
-    const defaultAlocacao = [
-      { nome: "Ações", percentual: 40, cor: "#4f46e5" },
-      { nome: "Renda Fixa", percentual: 40, cor: "#10b981" },
-      { nome: "Alternativos", percentual: 15, cor: "#f59e0b" },
-      { nome: "Caixa", percentual: 5, cor: "#6b7280" },
-    ];
-
-    const alocacaoAtivos =
-      recommendation.alocacaoAtivos?.length > 0
-        ? recommendation.alocacaoAtivos
-        : defaultAlocacao;
-
-    const tableData = alocacaoAtivos.map((ativo) => [
-      ativo.nome,
-      `${ativo.percentual}%`,
-      `${Math.max(0, ativo.percentual - 5)}% - ${Math.min(100, ativo.percentual + 5)}%`,
-    ]);
-
-    (doc as any).autoTable({
-      startY: yPosition,
-      head: [["Classe de Ativo", "Alocação", "Faixa Alvo"]],
-      body: tableData,
-      theme: "grid",
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      margin: { left: margin, right: margin },
-    });
-
-    yPosition = (doc as any).lastAutoTable.finalY + 15;
-
-    // Adicionar rodapé
-    if (yPosition + 20 > pageHeight) {
-      doc.addPage();
-      yPosition = margin;
-    }
-
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "italic");
-    const disclaimer =
-      "Este relatório é apenas para fins informativos e não constitui aconselhamento de investimento. " +
-      "Os valores e projeções apresentados são baseados em dados históricos e não garantem resultados futuros. " +
-      "Consulte um profissional financeiro antes de tomar decisões de investimento.";
-
-    const disclaimerLines = doc.splitTextToSize(
-      disclaimer,
-      pageWidth - margin * 2,
-    );
-    doc.text(disclaimerLines, margin, pageHeight - 20);
-
-    // Salvar o PDF
-    const clientName = recommendation.nomeCliente || "cliente";
-    doc.save(
-      `relatorio_investimento_${clientName.replace(/\s+/g, "_")}_${date.replace(/\//g, "-")}.pdf`,
-    );
-
-    return true;
-  } catch (error) {
-    console.error("Erro ao gerar PDF:", error);
-    return false;
-  }
+  });
 };
 
 // Função para exportar múltiplas recomendações como PDF

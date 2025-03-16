@@ -4,11 +4,16 @@ export interface Recomendacao {
   id?: number;
   titulo: string;
   data: Date;
+  nomeCliente: string;
+  idadeCliente?: number;
+  objetivoInvestimento?: string;
+  valorInvestimento: number;
   perfilRisco: "Conservador" | "Moderado" | "Agressivo";
   horizonteInvestimento: string;
   estrategia: string;
   alocacaoAtivos: AlocacaoAtivo[];
   status: "Rascunho" | "Final";
+  valorPorRelatorio?: number;
 }
 
 export interface AlocacaoAtivo {

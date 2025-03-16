@@ -1,6 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, PieChart, History, Settings, Menu } from "lucide-react";
+import {
+  Home,
+  PieChart,
+  History,
+  Settings,
+  Menu,
+  BarChart3,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import {
   Tooltip,
@@ -25,6 +32,7 @@ const Sidebar = ({ collapsed = false, onToggle = () => {} }: SidebarProps) => {
     },
     { icon: History, label: "Histórico", path: "/history" },
     { icon: Settings, label: "Configurações", path: "/settings" },
+    { icon: BarChart3, label: "Análises", path: "/analysis" },
   ];
 
   return (

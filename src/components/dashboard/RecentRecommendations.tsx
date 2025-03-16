@@ -88,6 +88,7 @@ const RecentRecommendations = ({
             <TableHead>Perfil de Risco</TableHead>
             <TableHead>Horizonte de Investimento</TableHead>
             <TableHead>Estratégia</TableHead>
+            <TableHead className="text-right">Valor Investido</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -112,6 +113,12 @@ const RecentRecommendations = ({
                 </TableCell>
                 <TableCell>{recomendacao.horizonteInvestimento}</TableCell>
                 <TableCell>{recomendacao.estrategia}</TableCell>
+                <TableCell className="font-medium text-right">
+                  {new Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(recomendacao.valorInvestimento)}
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -24,6 +24,25 @@ interface AssetClassesStepProps {
   preselectedAssets?: string[];
 }
 
+const getCategoryName = (category: string): string => {
+  switch (category) {
+    case "Stocks":
+      return "Ações Brasileiras";
+    case "Bonds":
+      return "Renda Fixa";
+    case "Alternatives":
+      return "Alternativos";
+    case "International":
+      return "Ativos Internacionais";
+    case "Crypto":
+      return "Criptomoedas";
+    case "Cash":
+      return "Caixa/Liquidez";
+    default:
+      return category;
+  }
+};
+
 const AssetClassesStep: React.FC<AssetClassesStepProps> = ({
   onPrevious = () => {},
   onNext = () => {},
@@ -34,112 +53,184 @@ const AssetClassesStep: React.FC<AssetClassesStepProps> = ({
 
   // Sample asset classes data
   const assetClasses: AssetClass[] = [
-    // Stocks
+    // Ações Brasileiras
     {
-      id: "us-large-cap",
-      name: "US Large Cap",
-      description: "Large US companies with market cap > $10B",
+      id: "acoes-brasileiras-large-cap",
+      name: "Ações Brasileiras - Large Cap",
+      description:
+        "Empresas brasileiras de grande capitalização (PETR4, VALE3, ITUB4)",
       category: "Stocks",
     },
     {
-      id: "us-mid-cap",
-      name: "US Mid Cap",
-      description: "Medium US companies with market cap $2-10B",
+      id: "acoes-brasileiras-mid-cap",
+      name: "Ações Brasileiras - Mid Cap",
+      description:
+        "Empresas brasileiras de média capitalização (MGLU3, RENT3, LWSA3)",
       category: "Stocks",
     },
     {
-      id: "us-small-cap",
-      name: "US Small Cap",
-      description: "Small US companies with market cap < $2B",
+      id: "acoes-brasileiras-small-cap",
+      name: "Ações Brasileiras - Small Cap",
+      description:
+        "Empresas brasileiras de pequena capitalização (PETZ3, CASH3, MLAS3)",
       category: "Stocks",
     },
     {
-      id: "international-developed",
-      name: "International Developed",
-      description: "Stocks from developed markets outside the US",
+      id: "acoes-dividendos",
+      name: "Ações de Dividendos",
+      description:
+        "Empresas com histórico de pagamento de dividendos (TAEE11, BBSE3, TRPL4)",
       category: "Stocks",
     },
     {
-      id: "emerging-markets",
-      name: "Emerging Markets",
-      description: "Stocks from developing economies",
+      id: "etfs-acoes-brasileiras",
+      name: "ETFs de Ações Brasileiras",
+      description: "ETFs que replicam índices da B3 (BOVA11, IVVB11, SMAL11)",
       category: "Stocks",
     },
 
-    // Bonds
+    // Renda Fixa
     {
-      id: "us-treasury",
-      name: "US Treasury",
-      description: "US government bonds",
+      id: "tesouro-direto",
+      name: "Tesouro Direto",
+      description:
+        "Títulos públicos federais (Tesouro Selic, Tesouro IPCA+, Tesouro Prefixado)",
       category: "Bonds",
     },
     {
-      id: "corporate-bonds",
-      name: "Corporate Bonds",
-      description: "Debt securities issued by corporations",
+      id: "cdbs",
+      name: "CDBs",
+      description:
+        "Certificados de Depósito Bancário emitidos por bancos brasileiros",
       category: "Bonds",
     },
     {
-      id: "municipal-bonds",
-      name: "Municipal Bonds",
-      description: "Bonds issued by states, cities, and counties",
+      id: "lci-lca",
+      name: "LCI/LCA",
+      description:
+        "Letras de Crédito Imobiliário e do Agronegócio, isentas de IR",
       category: "Bonds",
     },
     {
-      id: "international-bonds",
-      name: "International Bonds",
-      description: "Bonds issued by foreign governments and corporations",
+      id: "debentures",
+      name: "Debêntures",
+      description: "Títulos de dívida corporativa de empresas brasileiras",
       category: "Bonds",
     },
     {
-      id: "tips",
-      name: "TIPS",
-      description: "Treasury Inflation-Protected Securities",
+      id: "fundos-renda-fixa",
+      name: "Fundos de Renda Fixa",
+      description:
+        "Fundos que investem em títulos de renda fixa públicos e privados",
       category: "Bonds",
     },
 
-    // Alternatives
+    // Alternativos
     {
-      id: "real-estate",
-      name: "Real Estate",
-      description: "REITs and real estate investments",
+      id: "fundos-imobiliarios",
+      name: "Fundos Imobiliários",
+      description: "FIIs listados na B3 (KNRI11, HGLG11, XPLG11)",
       category: "Alternatives",
     },
     {
-      id: "commodities",
-      name: "Commodities",
-      description: "Raw materials like gold, oil, and agricultural products",
+      id: "ouro",
+      name: "Ouro",
+      description: "Investimento em ouro físico ou ETFs de ouro",
       category: "Alternatives",
     },
     {
-      id: "private-equity",
-      name: "Private Equity",
-      description: "Investments in private companies",
+      id: "fundos-multimercado",
+      name: "Fundos Multimercado",
+      description:
+        "Fundos com estratégias diversificadas e maior flexibilidade",
       category: "Alternatives",
     },
     {
-      id: "hedge-funds",
-      name: "Hedge Funds",
-      description: "Alternative investment using pooled funds",
+      id: "previdencia-privada",
+      name: "Previdência Privada",
+      description: "PGBL e VGBL com benefícios fiscais para aposentadoria",
       category: "Alternatives",
     },
 
-    // Cash
+    // Ativos Internacionais
     {
-      id: "money-market",
-      name: "Money Market",
-      description: "Short-term, high-quality investments",
+      id: "bdrs",
+      name: "BDRs",
+      description:
+        "Brazilian Depositary Receipts de empresas estrangeiras (AAPL34, MSFT34)",
+      category: "International",
+    },
+    {
+      id: "etfs-internacionais",
+      name: "ETFs Internacionais",
+      description: "ETFs que replicam índices internacionais (IVVB11, SPXI11)",
+      category: "International",
+    },
+    {
+      id: "acoes-eua",
+      name: "Ações Americanas",
+      description:
+        "Ações de empresas listadas nas bolsas dos EUA (via corretora internacional)",
+      category: "International",
+    },
+    {
+      id: "fundos-internacionais",
+      name: "Fundos de Investimento Internacional",
+      description: "Fundos brasileiros que investem no exterior",
+      category: "International",
+    },
+
+    // Criptomoedas
+    {
+      id: "bitcoin",
+      name: "Bitcoin",
+      description: "A criptomoeda mais conhecida e de maior capitalização",
+      category: "Crypto",
+    },
+    {
+      id: "ethereum",
+      name: "Ethereum",
+      description:
+        "Plataforma de contratos inteligentes e segunda maior criptomoeda",
+      category: "Crypto",
+    },
+    {
+      id: "etfs-cripto",
+      name: "ETFs de Criptomoedas",
+      description: "ETFs que investem em criptomoedas (HASH11, QBTC11)",
+      category: "Crypto",
+    },
+    {
+      id: "fundos-cripto",
+      name: "Fundos de Criptoativos",
+      description:
+        "Fundos brasileiros que investem em criptomoedas e blockchain",
+      category: "Crypto",
+    },
+
+    // Caixa/Liquidez
+    {
+      id: "poupanca",
+      name: "Poupança",
+      description: "Caderneta de poupança tradicional, com liquidez imediata",
       category: "Cash",
     },
     {
-      id: "certificates-of-deposit",
-      name: "Certificates of Deposit",
-      description: "Time deposits with fixed term and interest rate",
+      id: "fundos-di",
+      name: "Fundos DI",
+      description: "Fundos que acompanham a taxa DI (CDI) com alta liquidez",
       category: "Cash",
     },
   ];
 
-  const categories = ["Stocks", "Bonds", "Alternatives", "Cash"];
+  const categories = [
+    "Stocks",
+    "Bonds",
+    "Alternatives",
+    "International",
+    "Crypto",
+    "Cash",
+  ];
 
   const toggleAsset = (assetId: string) => {
     setSelectedAssets((prev) =>
@@ -157,11 +248,11 @@ const AssetClassesStep: React.FC<AssetClassesStepProps> = ({
     <div className="w-full max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
-          Select Asset Classes
+          Selecionar Classes de Ativos
         </h1>
         <p className="text-gray-600 mt-2">
-          Choose the asset classes you want to include in your investment
-          portfolio.
+          Escolha as classes de ativos que deseja incluir em seu portfólio de
+          investimentos.
         </p>
       </div>
 
@@ -169,10 +260,10 @@ const AssetClassesStep: React.FC<AssetClassesStepProps> = ({
         {categories.map((category) => (
           <Card key={category} className="bg-card">
             <CardHeader>
-              <CardTitle>{category}</CardTitle>
+              <CardTitle>{getCategoryName(category)}</CardTitle>
               <CardDescription>
-                Select the {category.toLowerCase()} you want to include in your
-                portfolio
+                Selecione os {getCategoryName(category).toLowerCase()} que
+                deseja incluir em seu portfólio
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -217,21 +308,21 @@ const AssetClassesStep: React.FC<AssetClassesStepProps> = ({
           className="flex items-center"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
-          Previous
+          Anterior
         </Button>
         <Button
           onClick={handleNext}
           disabled={selectedAssets.length === 0}
           className="flex items-center"
         >
-          Next
+          Próximo
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
 
       {selectedAssets.length === 0 && (
         <p className="text-red-500 text-sm mt-2 text-center">
-          Please select at least one asset class to continue
+          Por favor, selecione pelo menos uma classe de ativos para continuar
         </p>
       )}
     </div>

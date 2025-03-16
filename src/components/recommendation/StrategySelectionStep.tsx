@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -11,7 +11,6 @@ import {
   TrendingUp,
   Layers,
   Gauge,
-  Dices,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,20 +18,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -62,27 +51,36 @@ type StrategySelectionFormValues = z.infer<typeof formSchema>;
 interface StrategySelectionStepProps {
   onNext?: (data: StrategySelectionFormValues) => void;
   onBack?: () => void;
+  onPrevious?: () => void;
   defaultValues?: StrategySelectionFormValues;
+  selectedStrategy?: string;
+  riskProfile?: string;
+  investmentObjective?: string;
 }
 
 const StrategySelectionStep = ({
   onNext = () => {},
   onBack = () => {},
-  defaultValues = { strategy: "permanent" },
+  onPrevious = () => {},
+  defaultValues,
+  selectedStrategy: initialStrategy = "permanent",
+  riskProfile = "conservador",
+  investmentObjective = "retirement",
 }: StrategySelectionStepProps) => {
   const [selectedStrategy, setSelectedStrategy] = useState<string>(
-    defaultValues.strategy,
+    initialStrategy || defaultValues?.strategy || "permanent",
   );
 
   const form = useForm<StrategySelectionFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: defaultValues || { strategy: initialStrategy },
   });
 
   const handleSubmit = (data: StrategySelectionFormValues) => {
     onNext(data);
   };
 
+  // Estratégias de investimento disponíveis
   const strategies = [
     {
       id: "permanent",
@@ -176,6 +174,123 @@ const StrategySelectionStep = ({
     },
   ];
 
+  // Função para ordenar estratégias com base no perfil de risco e objetivo
+  const getOrderedStrategies = () => {
+    // Pontuação base para cada estratégia por perfil de risco
+    const strategyScoresByRisk = {
+      conservador: {
+        permanent: 90,
+        minimumvariance: 85,
+        allweather: 80,
+        equalweight: 70,
+        traditional: 60,
+        riskparity: 55,
+        blacklitterman: 50,
+        markowitz: 40,
+        momentum: 30,
+        custom: 60,
+      },
+      moderado: {
+        allweather: 90,
+        traditional: 85,
+        riskparity: 80,
+        equalweight: 75,
+        blacklitterman: 70,
+        permanent: 65,
+        minimumvariance: 60,
+        markowitz: 70,
+        momentum: 65,
+        custom: 75,
+      },
+      agressivo: {
+        traditional: 90,
+        momentum: 85,
+        markowitz: 80,
+        blacklitterman: 75,
+        riskparity: 70,
+        allweather: 65,
+        equalweight: 60,
+        permanent: 40,
+        minimumvariance: 35,
+        custom: 85,
+      },
+    };
+
+    // Ajustes por objetivo
+    const objectiveAdjustments = {
+      retirement: {
+        allweather: 15,
+        permanent: 10,
+        minimumvariance: 10,
+        riskparity: 5,
+        traditional: 0,
+        momentum: -10,
+      },
+      reserve: {
+        minimumvariance: 20,
+        permanent: 15,
+        equalweight: 5,
+        momentum: -20,
+      },
+      education: {
+        allweather: 10,
+        traditional: 5,
+        riskparity: 5,
+      },
+      property: {
+        traditional: 10,
+        allweather: 5,
+        blacklitterman: 5,
+      },
+      wealth: {
+        markowitz: 15,
+        momentum: 10,
+        blacklitterman: 10,
+        traditional: 5,
+      },
+      income: {
+        allweather: 15,
+        riskparity: 10,
+        permanent: 5,
+        momentum: -5,
+      },
+      travel: {
+        traditional: 10,
+        equalweight: 5,
+        minimumvariance: 5,
+      },
+    };
+
+    // Calcular pontuação final para cada estratégia
+    const strategyScores = {};
+    const baseScores =
+      strategyScoresByRisk[riskProfile] || strategyScoresByRisk.moderado;
+
+    // Inicializar com pontuações base
+    Object.keys(baseScores).forEach((strategy) => {
+      strategyScores[strategy] = baseScores[strategy];
+    });
+
+    // Aplicar ajustes por objetivo
+    if (objectiveAdjustments[investmentObjective]) {
+      Object.keys(objectiveAdjustments[investmentObjective]).forEach(
+        (strategy) => {
+          if (strategyScores[strategy] !== undefined) {
+            strategyScores[strategy] +=
+              objectiveAdjustments[investmentObjective][strategy];
+          }
+        },
+      );
+    }
+
+    // Ordenar estratégias por pontuação
+    return [...strategies].sort((a, b) => {
+      const scoreA = strategyScores[a.id] || 0;
+      const scoreB = strategyScores[b.id] || 0;
+      return scoreB - scoreA;
+    });
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm">
       <motion.div
@@ -212,7 +327,7 @@ const StrategySelectionStep = ({
                       defaultValue={field.value}
                       className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                     >
-                      {strategies.map((strategy) => (
+                      {getOrderedStrategies().map((strategy) => (
                         <div key={strategy.id} className="relative">
                           <RadioGroupItem
                             value={strategy.id}
@@ -255,7 +370,11 @@ const StrategySelectionStep = ({
             />
 
             <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onPrevious || onBack}
+              >
                 Voltar
               </Button>
               <Button type="submit">Continuar</Button>

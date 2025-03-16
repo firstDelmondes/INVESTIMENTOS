@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -30,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { FileText, FileCheck } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -49,6 +48,8 @@ const formSchema = z.object({
 type ReportCustomizationProps = {
   onSubmit?: (values: z.infer<typeof formSchema>) => void;
   initialData?: z.infer<typeof formSchema>;
+  recommendations?: any[];
+  onRecommendationSelect?: (id: number) => void;
 };
 
 const ReportCustomization = ({
@@ -67,7 +68,13 @@ const ReportCustomization = ({
     reportFormat: "detailed" as const,
     additionalNotes: "",
   },
+  recommendations = [],
+  onRecommendationSelect = () => {},
 }: ReportCustomizationProps) => {
+  const [selectedRecommendation, setSelectedRecommendation] = useState<
+    number | null
+  >(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
@@ -77,14 +84,65 @@ const ReportCustomization = ({
     onSubmit(values);
   };
 
+  const handleRecommendationSelect = (id: number) => {
+    setSelectedRecommendation(id);
+    onRecommendationSelect(id);
+  };
+
   return (
-    <div className="w-full bg-background p-6 rounded-lg">
-      <Card>
+    <div className="w-full bg-background p-6 rounded-lg dark:bg-gray-800">
+      {recommendations.length > 0 && (
+        <Card className="mb-6 dark:bg-gray-700 dark:border-gray-600">
+          <CardHeader>
+            <CardTitle className="text-lg dark:text-white">
+              Selecionar Recomendação
+            </CardTitle>
+            <CardDescription className="dark:text-gray-300">
+              Escolha uma recomendação existente para gerar o relatório
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recommendations.slice(0, 4).map((rec) => (
+                <div
+                  key={rec.id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors dark:border-gray-600 ${selectedRecommendation === rec.id ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-600"}`}
+                  onClick={() => handleRecommendationSelect(rec.id)}
+                >
+                  <div className="flex items-start">
+                    <div className="mr-3 mt-1">
+                      {selectedRecommendation === rec.id ? (
+                        <FileCheck className="h-5 w-5 text-blue-500" />
+                      ) : (
+                        <FileText className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      )}
+                    </div>
+                    <div>
+                      <h4
+                        className={`font-medium ${selectedRecommendation === rec.id ? "text-blue-700 dark:text-blue-400" : "text-gray-900 dark:text-gray-200"}`}
+                      >
+                        {rec.titulo}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {rec.nomeCliente} - {rec.perfilRisco} -{" "}
+                        {new Date(rec.data).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="dark:bg-gray-700 dark:border-gray-600">
         <CardHeader>
-          <CardTitle>Personalizar Relatório</CardTitle>
-          <CardDescription>
-            Configure os detalhes e seções a serem incluídos no seu relatório de
-            recomendação de investimentos.
+          <CardTitle className="text-lg dark:text-white">
+            Personalizar Relatório
+          </CardTitle>
+          <CardDescription className="dark:text-gray-300">
+            Configure as opções do relatório conforme necessário
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,116 +152,75 @@ const ReportCustomization = ({
               className="space-y-6"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Report Title */}
                 <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Título do Relatório</FormLabel>
+                      <FormLabel className="dark:text-white">
+                        Título do Relatório
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Digite o título do relatório"
+                          placeholder="Título do relatório"
                           {...field}
+                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
                       </FormControl>
-                      <FormDescription>
-                        Isto aparecerá como o título principal do seu relatório.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Client Name */}
                 <FormField
                   control={form.control}
                   name="clientName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome do Cliente</FormLabel>
+                      <FormLabel className="dark:text-white">
+                        Nome do Cliente
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Digite o nome do cliente"
+                          placeholder="Nome do cliente"
                           {...field}
+                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
                       </FormControl>
-                      <FormDescription>
-                        O nome do cliente para quem este relatório é destinado.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              {/* Report Description */}
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição do Relatório</FormLabel>
+                    <FormLabel className="dark:text-white">Descrição</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Digite uma breve descrição deste relatório"
-                        className="min-h-[80px]"
+                        placeholder="Descrição do relatório"
                         {...field}
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </FormControl>
-                    <FormDescription>
-                      Um breve resumo que aparecerá na introdução do relatório.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Report Format */}
-              <FormField
-                control={form.control}
-                name="reportFormat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Formato do Relatório</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um formato de relatório" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="detailed">
-                          Relatório Detalhado
-                        </SelectItem>
-                        <SelectItem value="summary">
-                          Relatório Resumido
-                        </SelectItem>
-                        <SelectItem value="presentation">
-                          Formato de Apresentação
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Escolha o nível de detalhe e formato para o seu relatório.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Sections to Include */}
               <div className="space-y-4">
-                <Label className="text-base">Seções a Incluir</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-md p-4">
+                <h3 className="text-lg font-medium dark:text-white">
+                  Seções do Relatório
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="includeExecutiveSummary"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 dark:border-gray-700">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -211,10 +228,11 @@ const ReportCustomization = ({
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Resumo Executivo</FormLabel>
-                          <FormDescription>
-                            Breve visão geral das principais conclusões e
-                            recomendações.
+                          <FormLabel className="dark:text-white">
+                            Resumo Executivo
+                          </FormLabel>
+                          <FormDescription className="dark:text-gray-400">
+                            Incluir um resumo executivo no início do relatório
                           </FormDescription>
                         </div>
                       </FormItem>
@@ -225,7 +243,7 @@ const ReportCustomization = ({
                     control={form.control}
                     name="includeMarketAnalysis"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 dark:border-gray-700">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -233,9 +251,11 @@ const ReportCustomization = ({
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Análise de Mercado</FormLabel>
-                          <FormDescription>
-                            Condições atuais do mercado e perspectivas.
+                          <FormLabel className="dark:text-white">
+                            Análise de Mercado
+                          </FormLabel>
+                          <FormDescription className="dark:text-gray-400">
+                            Incluir análise do cenário de mercado atual
                           </FormDescription>
                         </div>
                       </FormItem>
@@ -246,7 +266,7 @@ const ReportCustomization = ({
                     control={form.control}
                     name="includeAssetAllocation"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 dark:border-gray-700">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -254,9 +274,11 @@ const ReportCustomization = ({
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Alocação de Ativos</FormLabel>
-                          <FormDescription>
-                            Detalhamento da alocação de ativos recomendada.
+                          <FormLabel className="dark:text-white">
+                            Alocação de Ativos
+                          </FormLabel>
+                          <FormDescription className="dark:text-gray-400">
+                            Incluir detalhes da alocação de ativos recomendada
                           </FormDescription>
                         </div>
                       </FormItem>
@@ -267,7 +289,7 @@ const ReportCustomization = ({
                     control={form.control}
                     name="includePerformanceProjections"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 dark:border-gray-700">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
@@ -275,53 +297,11 @@ const ReportCustomization = ({
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Projeções de Desempenho</FormLabel>
-                          <FormDescription>
-                            Cenários e projeções de desempenho esperados.
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="includeRiskAnalysis"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Análise de Risco</FormLabel>
-                          <FormDescription>
-                            Avaliação de riscos potenciais e estratégias de
-                            mitigação.
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="includeRecommendations"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Recomendações</FormLabel>
-                          <FormDescription>
-                            Recomendações específicas de investimento e itens de
-                            ação.
+                          <FormLabel className="dark:text-white">
+                            Projeções de Desempenho
+                          </FormLabel>
+                          <FormDescription className="dark:text-gray-400">
+                            Incluir projeções de desempenho futuro
                           </FormDescription>
                         </div>
                       </FormItem>
@@ -330,35 +310,67 @@ const ReportCustomization = ({
                 </div>
               </div>
 
-              {/* Additional Notes */}
               <FormField
                 control={form.control}
-                name="additionalNotes"
+                name="reportFormat"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Notas Adicionais</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Digite quaisquer notas adicionais ou instruções especiais"
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Quaisquer instruções especiais ou notas para este
-                      relatório.
+                    <FormLabel className="dark:text-white">
+                      Formato do Relatório
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                          <SelectValue placeholder="Selecione um formato" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                        <SelectItem value="detailed">Detalhado</SelectItem>
+                        <SelectItem value="summary">Resumido</SelectItem>
+                        <SelectItem value="presentation">
+                          Apresentação
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription className="dark:text-gray-400">
+                      Escolha o formato que melhor atende às necessidades do
+                      cliente
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <CardFooter className="px-0 pt-6 flex justify-end space-x-4">
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-                <Button type="submit">Salvar e Continuar</Button>
-              </CardFooter>
+              <FormField
+                control={form.control}
+                name="additionalNotes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="dark:text-white">
+                      Notas Adicionais
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Notas adicionais para o relatório"
+                        {...field}
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      />
+                    </FormControl>
+                    <FormDescription className="dark:text-gray-400">
+                      Informações adicionais que devem ser incluídas no
+                      relatório
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full">
+                Continuar para Prévia
+              </Button>
             </form>
           </Form>
         </CardContent>

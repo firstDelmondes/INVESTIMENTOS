@@ -35,15 +35,17 @@ const QuickActionCard = ({
   variant = "default",
 }: QuickActionCardProps) => {
   return (
-    <Card className="w-full bg-white hover:shadow-lg transition-shadow duration-300">
+    <Card className="w-full h-full bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow duration-300 dark:border-gray-700 flex flex-col">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="text-primary">{icon}</div>
-          <CardTitle>{title}</CardTitle>
+          <div className="text-primary dark:text-primary">{icon}</div>
+          <CardTitle className="dark:text-white">{title}</CardTitle>
         </div>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="dark:text-gray-300">
+          {description}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         <div className="h-16 flex items-center justify-center">
           {/* Placeholder for any additional content */}
         </div>
@@ -92,16 +94,16 @@ const QuickActions = ({
       title: "Painel de Análise",
       description: "Visualizar métricas de desempenho e insights",
       icon: <BarChart className="h-8 w-8" />,
-      to: "/",
+      to: "/analysis",
       buttonText: "Ver Análises",
       variant: "ghost",
     },
   ],
 }: QuickActionsProps) => {
   return (
-    <div className="w-full bg-gray-50 p-6 rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Ações Rápidas</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="w-full bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+      <h2 className="text-2xl font-bold mb-6 dark:text-white">Ações Rápidas</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[220px]">
         {actions.map((action, index) => (
           <QuickActionCard key={index} {...action} />
         ))}

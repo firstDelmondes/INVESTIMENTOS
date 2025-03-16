@@ -1,5 +1,5 @@
-import React from "react";
-import { Search, Filter, Calendar, ArrowUpDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Filter, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,71 +9,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import DatePickerWithRange from "@/components/ui/date-picker-with-range";
+import { db } from "@/lib/db";
 
 interface HistoryFiltersProps {
   onSearch?: (query: string) => void;
   onFilterChange?: (filter: string) => void;
-  onDateRangeChange?: (dateRange: any) => void;
-  onSortChange?: (sortBy: string) => void;
+  onSortChange?: (sort: string) => void;
 }
 
 const HistoryFilters = ({
   onSearch = () => {},
   onFilterChange = () => {},
-  onDateRangeChange = () => {},
   onSortChange = () => {},
 }: HistoryFiltersProps) => {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [hasRecommendations, setHasRecommendations] = useState(false);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    onSearch(e.target.value);
+  useEffect(() => {
+    // Verificar se existem recomendações no banco de dados
+    const checkRecommendations = async () => {
+      try {
+        const count = await db.recomendacoes.count();
+        setHasRecommendations(count > 0);
+      } catch (error) {
+        console.error("Erro ao verificar recomendações:", error);
+      }
+    };
+
+    checkRecommendations();
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(searchQuery);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    onFilterChange(filter);
   };
 
   return (
-    <div className="w-full p-4 bg-white border rounded-md shadow-sm">
-      <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        {/* Search Input */}
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-md border shadow-sm dark:border-gray-700">
+      <form onSubmit={handleSearch} className="flex w-full md:w-auto">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground dark:text-gray-400" />
           <Input
-            placeholder="Buscar recomendações..."
+            type="search"
+            placeholder="Buscar por título ou cliente..."
+            className="pl-8 w-full md:w-[300px] dark:bg-gray-700 dark:text-white dark:border-gray-600"
             value={searchQuery}
-            onChange={handleSearchChange}
-            className="pl-9"
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <Button
+          type="submit"
+          variant="ghost"
+          className="ml-2 dark:text-gray-300"
+        >
+          Buscar
+        </Button>
+      </form>
 
-        {/* Risk Profile Filter */}
-        <div className="w-full md:w-48">
-          <Select onValueChange={onFilterChange}>
-            <SelectTrigger>
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Perfil de Risco" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Perfis</SelectItem>
-              <SelectItem value="conservative">Conservador</SelectItem>
-              <SelectItem value="moderate">Moderado</SelectItem>
-              <SelectItem value="aggressive">Agressivo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="flex gap-2 w-full md:w-auto">
+        <Select onValueChange={handleFilterChange} defaultValue={activeFilter}>
+          <SelectTrigger className="w-[180px] dark:border-gray-600 dark:text-gray-300 dark:bg-gray-700">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Filtrar Por" />
+          </SelectTrigger>
+          <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+            <SelectItem value="all">Todos os Perfis</SelectItem>
+            <SelectItem value="conservative">Conservador</SelectItem>
+            <SelectItem value="moderate">Moderado</SelectItem>
+            <SelectItem value="aggressive">Agressivo</SelectItem>
+          </SelectContent>
+        </Select>
 
-        {/* Date Range Picker */}
-        <div className="w-full md:w-auto">
-          <DatePickerWithRange />
-        </div>
-
-        {/* Sort Button */}
         <div className="w-full md:w-auto">
           <Select onValueChange={onSortChange}>
-            <SelectTrigger>
+            <SelectTrigger className="dark:border-gray-600 dark:text-gray-300 dark:bg-gray-700">
               <ArrowUpDown className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Ordenar Por" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
               <SelectItem value="date-desc">Mais Recentes</SelectItem>
               <SelectItem value="date-asc">Mais Antigos</SelectItem>
               <SelectItem value="name-asc">Nome (A-Z)</SelectItem>
@@ -82,6 +101,15 @@ const HistoryFilters = ({
           </Select>
         </div>
       </div>
+
+      {!hasRecommendations && (
+        <div className="w-full bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 p-3 rounded-md mt-2">
+          <p className="text-amber-800 dark:text-amber-300 text-sm">
+            Nenhuma recomendação encontrada. Crie uma nova recomendação para
+            começar.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

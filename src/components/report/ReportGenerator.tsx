@@ -192,20 +192,27 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
       };
 
       try {
-        // Gerar PDF
+        // Primeiro salvar relatório no banco de dados
+        const reportId = await db.recomendacoes.add(reportDataForPDF);
+
+        // Depois tentar gerar o PDF
         const success = await exportRecommendationToPDF(reportDataForPDF);
 
         if (!success) {
-          throw new Error("Falha ao gerar o PDF");
+          // Mesmo se falhar o PDF, o relatório já foi salvo
+          toast({
+            variant: "warning",
+            title: "Relatório salvo, mas PDF não gerado",
+            description:
+              "O relatório foi salvo no histórico, mas houve um problema ao gerar o arquivo PDF. Verifique as permissões do sistema.",
+          });
+        } else {
+          toast({
+            title: "Relatório gerado com sucesso",
+            description:
+              "O relatório foi salvo e está disponível no histórico.",
+          });
         }
-
-        // Salvar relatório no banco de dados
-        const reportId = await db.recomendacoes.add(reportDataForPDF);
-
-        toast({
-          title: "Relatório gerado com sucesso",
-          description: "O relatório foi salvo e está disponível no histórico.",
-        });
 
         onSave(reportData);
 

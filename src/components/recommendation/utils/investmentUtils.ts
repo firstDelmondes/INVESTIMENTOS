@@ -218,8 +218,8 @@ export const calculateRecommendedAllocation = (
   // Alocações base por perfil de risco
   const baseAllocations = {
     conservador: {
-      acoes: 20,
-      rendaFixa: 60,
+      acoes: 25,
+      rendaFixa: 55,
       alternativos: 10,
       caixa: 10,
     },
@@ -230,10 +230,11 @@ export const calculateRecommendedAllocation = (
       caixa: 5,
     },
     agressivo: {
-      acoes: 60,
+      acoes: 50,
       rendaFixa: 20,
       alternativos: 15,
-      caixa: 5,
+      criptomoedas: 15,
+      caixa: 0,
     },
   };
 
@@ -246,13 +247,16 @@ export const calculateRecommendedAllocation = (
 
   // Ajustes por idade
   if (age < 30) {
-    // Jovens: mais ações, menos renda fixa
-    allocation.acoes = Math.min(allocation.acoes + 10, 80);
+    // Jovens: mais ações e criptomoedas, menos renda fixa
+    allocation.acoes = Math.min(allocation.acoes + 5, 60);
+    allocation.criptomoedas = Math.min(allocation.criptomoedas + 5, 20);
     allocation.rendaFixa = Math.max(allocation.rendaFixa - 10, 10);
   } else if (age > 55) {
-    // Mais velhos: menos ações, mais renda fixa
+    // Mais velhos: menos ações e criptomoedas, mais renda fixa
     allocation.acoes = Math.max(allocation.acoes - 10, 10);
+    allocation.criptomoedas = Math.max(allocation.criptomoedas - 5, 0);
     allocation.rendaFixa = Math.min(allocation.rendaFixa + 10, 70);
+    allocation.caixa = Math.min(allocation.caixa + 5, 20);
   }
 
   // Ajustes por objetivo
@@ -260,24 +264,28 @@ export const calculateRecommendedAllocation = (
     case "retirement":
       if (age > 50) {
         // Aposentadoria próxima: mais conservador
-        allocation.acoes = Math.max(allocation.acoes - 15, 10);
+        allocation.acoes = Math.max(allocation.acoes - 10, 10);
+        allocation.criptomoedas = Math.max(allocation.criptomoedas - 5, 0);
         allocation.rendaFixa = Math.min(allocation.rendaFixa + 15, 70);
       }
       break;
     case "reserve":
       // Reserva de emergência: muito conservador
       allocation.acoes = Math.max(allocation.acoes - 15, 0);
-      allocation.caixa = Math.min(allocation.caixa + 15, 50);
+      allocation.criptomoedas = Math.max(allocation.criptomoedas - 5, 0);
+      allocation.caixa = Math.min(allocation.caixa + 20, 50);
       break;
     case "wealth":
       // Crescimento de patrimônio: mais agressivo
-      allocation.acoes = Math.min(allocation.acoes + 10, 80);
+      allocation.acoes = Math.min(allocation.acoes + 10, 70);
+      allocation.criptomoedas = Math.min(allocation.criptomoedas + 5, 25);
       allocation.caixa = Math.max(allocation.caixa - 5, 0);
       break;
     case "income":
       // Geração de renda: foco em ativos geradores de renda
       allocation.alternativos = Math.min(allocation.alternativos + 10, 30);
       allocation.acoes = Math.max(allocation.acoes - 5, 10);
+      allocation.criptomoedas = Math.max(allocation.criptomoedas - 5, 0);
       break;
   }
 

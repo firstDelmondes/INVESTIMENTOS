@@ -10,7 +10,7 @@ TempoDevtools.init();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HashRouter>
-      <App />
+      <App className="flex" />
     </HashRouter>
   </React.StrictMode>,
 );

@@ -57,7 +57,8 @@ const DashboardContent = ({
     perfilDistribution: [] as { name: string; value: number }[],
     estrategiaDistribution: [] as { name: string; value: number }[],
   });
-  const [activeTab, setActiveTab] = useState("overview");
+  // Removida a aba de desempenho, mantendo apenas visão geral
+  const activeTab = "overview";
 
   useEffect(() => {
     // Verificar se o modo escuro está ativado
@@ -158,52 +159,17 @@ const DashboardContent = ({
   // Cores para os gráficos
   const PERFIL_COLORS = ["#0088FE", "#00C49F", "#FF8042"];
   const ESTRATEGIA_COLORS = [
-    "#8884d8",
-    "#83a6ed",
-    "#8dd1e1",
-    "#82ca9d",
-    "#a4de6c",
+    "#8884d8", // Roxo
+    "#83a6ed", // Azul claro
+    "#8dd1e1", // Turquesa
+    "#82ca9d", // Verde
+    "#a4de6c", // Verde limão
+    "#ff6b6b", // Vermelho
+    "#ffd166", // Amarelo
+    "#6a5acd", // Azul escuro
   ];
 
-  // Dados de desempenho para o gráfico de linha
-  const performanceData = [
-    {
-      month: "Jan",
-      conservador: 2.1,
-      moderado: 3.2,
-      agressivo: 4.5,
-    },
-    {
-      month: "Fev",
-      conservador: 2.3,
-      moderado: 3.0,
-      agressivo: -2.1,
-    },
-    {
-      month: "Mar",
-      conservador: 1.8,
-      moderado: 2.8,
-      agressivo: 5.2,
-    },
-    {
-      month: "Abr",
-      conservador: 2.0,
-      moderado: 3.5,
-      agressivo: 6.1,
-    },
-    {
-      month: "Mai",
-      conservador: 1.5,
-      moderado: 2.1,
-      agressivo: -1.8,
-    },
-    {
-      month: "Jun",
-      conservador: 1.9,
-      moderado: 3.0,
-      agressivo: 4.2,
-    },
-  ];
+  // Removidos dados de desempenho que não são mais necessários
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
@@ -219,21 +185,16 @@ const DashboardContent = ({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-[400px]"
-          >
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value="overview" className="w-[400px]">
+            <TabsList className="grid w-full grid-cols-1">
               <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-              <TabsTrigger value="performance">Desempenho</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
         <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium dark:text-white">
@@ -323,52 +284,54 @@ const DashboardContent = ({
       </div>
 
       {/* Quick Actions Section */}
-      <QuickActions
-        actions={[
-          {
-            title: "Criar Nova Recomendação",
-            description:
-              "Iniciar uma nova recomendação de alocação de investimentos",
-            icon: <PieChart className="h-8 w-8" />,
-            to: "/recommendation/new",
-            buttonText: "Criar Nova",
-            variant: "default",
-          },
-          {
-            title: "Ver Histórico",
-            description: "Acessar recomendações geradas anteriormente",
-            icon: <History className="h-8 w-8" />,
-            to: "/history",
-            buttonText: "Ver Histórico",
-            variant: "secondary",
-          },
-          {
-            title: "Gerar Relatório",
-            description:
-              "Criar um relatório PDF personalizado a partir dos dados existentes",
-            icon: <FileText className="h-8 w-8" />,
-            to: "/report/new",
-            buttonText: "Gerar",
-            variant: "outline",
-          },
-          {
-            title: "Configurações",
-            description: "Personalizar as configurações da aplicação",
-            icon: <Settings className="h-8 w-8" />,
-            to: "/settings",
-            buttonText: "Configurar",
-            variant: "ghost",
-          },
-        ]}
-      />
+      <div className="mt-2 mb-6">
+        <QuickActions
+          actions={[
+            {
+              title: "Criar Nova Recomendação",
+              description:
+                "Iniciar uma nova recomendação de alocação de investimentos",
+              icon: <PieChart className="h-8 w-8" />,
+              to: "/recommendation/new",
+              buttonText: "Criar Nova",
+              variant: "default",
+            },
+            {
+              title: "Ver Histórico",
+              description: "Acessar recomendações geradas anteriormente",
+              icon: <History className="h-8 w-8" />,
+              to: "/history",
+              buttonText: "Ver Histórico",
+              variant: "default",
+            },
+            {
+              title: "Gerar Relatório",
+              description:
+                "Criar um relatório PDF personalizado a partir dos dados existentes",
+              icon: <FileText className="h-8 w-8" />,
+              to: "/report/new",
+              buttonText: "Gerar",
+              variant: "default",
+            },
+            {
+              title: "Configurações",
+              description: "Personalizar as configurações da aplicação",
+              icon: <Settings className="h-8 w-8" />,
+              to: "/settings",
+              buttonText: "Configurar",
+              variant: "default",
+            },
+          ]}
+        />
+      </div>
 
       {/* Recent Recommendations Table */}
       <RecentRecommendations />
 
       {/* Tabs Content */}
-      <div className="mt-6">
-        {activeTab === "overview" && (
-          <div className="grid gap-4 md:grid-cols-2">
+      <div className="mt-8">
+        {
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Distribuição por Perfil de Risco */}
             <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -420,10 +383,21 @@ const DashboardContent = ({
                       <Tooltip
                         formatter={(value) => [value, "Recomendações"]}
                         contentStyle={{
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          backgroundColor:
+                            document.documentElement.classList.contains("dark")
+                              ? "rgba(31, 41, 55, 0.9)"
+                              : "rgba(255, 255, 255, 0.9)",
                           borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          color: "#333",
+                          border: document.documentElement.classList.contains(
+                            "dark",
+                          )
+                            ? "1px solid #4b5563"
+                            : "1px solid #ccc",
+                          color: document.documentElement.classList.contains(
+                            "dark",
+                          )
+                            ? "#e5e7eb"
+                            : "#333",
                         }}
                       />
                       <Legend />
@@ -461,7 +435,7 @@ const DashboardContent = ({
                         cy="50%"
                         labelLine={true}
                         label={({ name, percent }) =>
-                          `${name.length > 15 ? name.substring(0, 15) + "..." : name}: ${(percent * 100).toFixed(0)}%`
+                          `${name.length > 12 ? name.substring(0, 12) + "..." : name}: ${(percent * 100).toFixed(0)}%`
                         }
                         outerRadius={80}
                         fill="#8884d8"
@@ -488,10 +462,21 @@ const DashboardContent = ({
                       <Tooltip
                         formatter={(value, name) => [value, name]}
                         contentStyle={{
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          backgroundColor:
+                            document.documentElement.classList.contains("dark")
+                              ? "rgba(31, 41, 55, 0.9)"
+                              : "rgba(255, 255, 255, 0.9)",
                           borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          color: "#333",
+                          border: document.documentElement.classList.contains(
+                            "dark",
+                          )
+                            ? "1px solid #4b5563"
+                            : "1px solid #ccc",
+                          color: document.documentElement.classList.contains(
+                            "dark",
+                          )
+                            ? "#e5e7eb"
+                            : "#333",
                         }}
                       />
                       <Legend />
@@ -501,146 +486,7 @@ const DashboardContent = ({
               </CardContent>
             </Card>
           </div>
-        )}
-
-        {activeTab === "performance" && (
-          <>
-            {/* Performance Overview */}
-            <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Visão Geral de Desempenho
-                </CardTitle>
-                <CardDescription className="dark:text-gray-400">
-                  Desempenho mensal do portfólio entre estratégias
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px] w-full">
-                  {/* Gráfico de desempenho usando recharts */}
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsLineChart
-                      data={performanceData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#ccc"
-                        className="dark:stroke-gray-600"
-                      />
-                      <XAxis
-                        dataKey="month"
-                        stroke="#666"
-                        className="dark:stroke-gray-400"
-                      />
-                      <YAxis stroke="#666" className="dark:stroke-gray-400" />
-                      <Tooltip
-                        formatter={(value) => [`${value}%`, "Retorno"]}
-                        contentStyle={{
-                          backgroundColor: "rgba(255, 255, 255, 0.9)",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          color: "#333",
-                        }}
-                      />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="conservador"
-                        stroke="#0088FE"
-                        name="Conservador"
-                        activeDot={{ r: 8 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="moderado"
-                        stroke="#00C49F"
-                        name="Moderado"
-                        activeDot={{ r: 8 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="agressivo"
-                        stroke="#FF8042"
-                        name="Agressivo"
-                        activeDot={{ r: 8 }}
-                      />
-                    </RechartsLineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Comparativo de Retorno por Estratégia */}
-            <div className="grid gap-4 md:grid-cols-3 mt-4">
-              <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg dark:text-white">
-                    Portfólio Permanente
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-400">
-                    Retorno médio anualizado
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <DollarSign className="h-5 w-5 text-green-500 mr-2" />
-                    <div className="text-2xl font-bold text-green-500">
-                      +6.8%
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground dark:text-gray-400 mt-1">
-                    Volatilidade baixa, retornos estáveis
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg dark:text-white">
-                    All Weather
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-400">
-                    Retorno médio anualizado
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <DollarSign className="h-5 w-5 text-green-500 mr-2" />
-                    <div className="text-2xl font-bold text-green-500">
-                      +8.2%
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground dark:text-gray-400 mt-1">
-                    Equilíbrio entre risco e retorno
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg dark:text-white">
-                    Tradicional 60/40
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-400">
-                    Retorno médio anualizado
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <DollarSign className="h-5 w-5 text-green-500 mr-2" />
-                    <div className="text-2xl font-bold text-green-500">
-                      +7.5%
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground dark:text-gray-400 mt-1">
-                    Abordagem clássica balanceada
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </>
-        )}
+        }
       </div>
     </div>
   );

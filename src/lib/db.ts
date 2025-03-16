@@ -129,11 +129,35 @@ export async function inicializarDB() {
           categoria: "Commodities",
           descricao: "Metal precioso usado como reserva de valor",
         },
+
+        // Criptomoedas (agora como categoria própria)
         {
-          nome: "Criptomoedas",
-          tipo: "Alternativo",
-          categoria: "Digital",
-          descricao: "Ativos digitais baseados em blockchain",
+          nome: "Bitcoin (BTC)",
+          tipo: "Criptomoeda",
+          categoria: "Criptomoedas",
+          descricao:
+            "A primeira e mais conhecida criptomoeda, funciona como reserva de valor digital",
+        },
+        {
+          nome: "Ethereum (ETH)",
+          tipo: "Criptomoeda",
+          categoria: "Criptomoedas",
+          descricao:
+            "Plataforma de contratos inteligentes e aplicações descentralizadas",
+        },
+        {
+          nome: "Stablecoins",
+          tipo: "Criptomoeda",
+          categoria: "Criptomoedas",
+          descricao:
+            "Criptomoedas com valor atrelado a ativos estáveis como o dólar",
+        },
+        {
+          nome: "Altcoins Estabelecidas",
+          tipo: "Criptomoeda",
+          categoria: "Criptomoedas",
+          descricao:
+            "Criptomoedas alternativas com capitalização de mercado significativa",
         },
 
         // Caixa

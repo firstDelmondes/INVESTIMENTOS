@@ -35,7 +35,7 @@ const QuickActionCard = ({
   variant = "default",
 }: QuickActionCardProps) => {
   return (
-    <Card className="w-full h-full bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow duration-300 dark:border-gray-700 flex flex-col">
+    <Card className="w-full h-full bg-white dark:bg-gray-800 hover:shadow-lg transition-all duration-300 dark:border-gray-700 flex flex-col">
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="text-primary dark:text-primary">{icon}</div>
@@ -51,7 +51,11 @@ const QuickActionCard = ({
         </div>
       </CardContent>
       <CardFooter>
-        <Button variant={variant} className="w-full" asChild>
+        <Button
+          variant="default"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          asChild
+        >
           <Link to={to}>{buttonText}</Link>
         </Button>
       </CardFooter>
@@ -79,7 +83,7 @@ const QuickActions = ({
       icon: <History className="h-8 w-8" />,
       to: "/history",
       buttonText: "Ver Histórico",
-      variant: "secondary",
+      variant: "default",
     },
     {
       title: "Gerar Relatório",
@@ -88,7 +92,7 @@ const QuickActions = ({
       icon: <FileText className="h-8 w-8" />,
       to: "/report/new",
       buttonText: "Gerar",
-      variant: "outline",
+      variant: "default",
     },
     {
       title: "Gestão de Clientes",
@@ -96,14 +100,14 @@ const QuickActions = ({
       icon: <BarChart className="h-8 w-8" />,
       to: "/clients",
       buttonText: "Gerenciar",
-      variant: "ghost",
+      variant: "default",
     },
   ],
 }: QuickActionsProps) => {
   return (
-    <div className="w-full bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+    <div className="w-full bg-gray-50 dark:bg-gray-900 p-6 rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-6 dark:text-white">Ações Rápidas</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[220px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[220px]">
         {actions.map((action, index) => (
           <QuickActionCard key={index} {...action} />
         ))}

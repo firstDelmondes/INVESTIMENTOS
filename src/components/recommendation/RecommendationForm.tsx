@@ -108,6 +108,7 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({
     const recommendedProfile = calculateRecommendedRiskProfile(
       data.clientAge,
       data.investmentObjective,
+      recommendedYears,
     );
     setFormData((prev) => ({ ...prev, riskProfile: recommendedProfile }));
 
@@ -385,77 +386,89 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({
     // Definir alocação baseada na estratégia selecionada
     switch (estrategia) {
       case "permanent":
-        // Portfólio Permanente - 25% em cada classe principal
-        alocacao = [
-          { nome: "Ações", percentual: 25, cor: "#4f46e5" },
-          { nome: "Títulos de Longo Prazo", percentual: 25, cor: "#10b981" },
-          { nome: "Ouro", percentual: 25, cor: "#f59e0b" },
-          { nome: "Caixa", percentual: 25, cor: "#6b7280" },
-        ];
+        // Portfólio Permanente - adaptado para perfil de risco
+        if (perfil === "agressivo") {
+          alocacao = [
+            { nome: "Ações", percentual: 25, cor: "#4f46e5" },
+            { nome: "Títulos de Longo Prazo", percentual: 25, cor: "#10b981" },
+            { nome: "Ouro", percentual: 20, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 5, cor: "#8884d8" },
+            { nome: "Caixa", percentual: 25, cor: "#6b7280" },
+          ];
+        } else {
+          alocacao = [
+            { nome: "Ações", percentual: 25, cor: "#4f46e5" },
+            { nome: "Títulos de Longo Prazo", percentual: 25, cor: "#10b981" },
+            { nome: "Ouro", percentual: 25, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 25, cor: "#6b7280" },
+          ];
+        }
         break;
 
       case "allweather":
-        // All Weather - ajustado por perfil de risco
+        // All Weather - ajustado por perfil de risco, criptomoedas apenas para agressivo
         if (perfil === "conservador") {
           alocacao = [
             { nome: "Ações", percentual: 20, cor: "#4f46e5" },
-            { nome: "Títulos de Longo Prazo", percentual: 40, cor: "#10b981" },
+            { nome: "Títulos de Longo Prazo", percentual: 35, cor: "#10b981" },
             { nome: "Títulos de Médio Prazo", percentual: 15, cor: "#06b6d4" },
-            { nome: "Ouro", percentual: 15, cor: "#f59e0b" },
+            { nome: "Ouro", percentual: 20, cor: "#f59e0b" },
             { nome: "Caixa", percentual: 10, cor: "#6b7280" },
           ];
         } else if (perfil === "moderado") {
           alocacao = [
             { nome: "Ações", percentual: 30, cor: "#4f46e5" },
-            { nome: "Títulos de Longo Prazo", percentual: 40, cor: "#10b981" },
+            { nome: "Títulos de Longo Prazo", percentual: 30, cor: "#10b981" },
             { nome: "Títulos de Médio Prazo", percentual: 15, cor: "#06b6d4" },
-            { nome: "Ouro", percentual: 7.5, cor: "#f59e0b" },
-            { nome: "Caixa", percentual: 7.5, cor: "#6b7280" },
+            { nome: "Ouro", percentual: 15, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
           ];
         } else {
           // agressivo
           alocacao = [
-            { nome: "Ações", percentual: 40, cor: "#4f46e5" },
-            { nome: "Títulos de Longo Prazo", percentual: 30, cor: "#10b981" },
-            { nome: "Títulos de Médio Prazo", percentual: 15, cor: "#06b6d4" },
+            { nome: "Ações", percentual: 35, cor: "#4f46e5" },
+            { nome: "Títulos de Longo Prazo", percentual: 25, cor: "#10b981" },
+            { nome: "Títulos de Médio Prazo", percentual: 10, cor: "#06b6d4" },
             { nome: "Ouro", percentual: 7.5, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 15, cor: "#8884d8" },
             { nome: "Caixa", percentual: 7.5, cor: "#6b7280" },
           ];
         }
         break;
 
       case "traditional":
-        // Tradicional 60/40 - ajustado por perfil de risco
+        // Tradicional 60/40 - ajustado por perfil de risco, criptomoedas apenas para agressivo
         if (perfil === "conservador") {
           alocacao = [
-            { nome: "Ações", percentual: 40, cor: "#4f46e5" },
+            { nome: "Ações", percentual: 35, cor: "#4f46e5" },
             { nome: "Títulos de Renda Fixa", percentual: 50, cor: "#10b981" },
-            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
+            { nome: "Caixa", percentual: 15, cor: "#6b7280" },
           ];
         } else if (perfil === "moderado") {
           alocacao = [
-            { nome: "Ações", percentual: 60, cor: "#4f46e5" },
+            { nome: "Ações", percentual: 55, cor: "#4f46e5" },
             { nome: "Títulos de Renda Fixa", percentual: 35, cor: "#10b981" },
-            { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
           ];
         } else {
           // agressivo
           alocacao = [
-            { nome: "Ações", percentual: 75, cor: "#4f46e5" },
-            { nome: "Títulos de Renda Fixa", percentual: 20, cor: "#10b981" },
+            { nome: "Ações", percentual: 60, cor: "#4f46e5" },
+            { nome: "Títulos de Renda Fixa", percentual: 15, cor: "#10b981" },
+            { nome: "Criptomoedas", percentual: 20, cor: "#8884d8" },
             { nome: "Caixa", percentual: 5, cor: "#6b7280" },
           ];
         }
         break;
 
       case "markowitz":
-        // Otimização de Markowitz
+        // Otimização de Markowitz - criptomoedas apenas para agressivo
         if (perfil === "conservador") {
           alocacao = [
-            { nome: "Ações", percentual: 30, cor: "#4f46e5" },
+            { nome: "Ações", percentual: 25, cor: "#4f46e5" },
             { nome: "Renda Fixa", percentual: 50, cor: "#10b981" },
             { nome: "Alternativos", percentual: 10, cor: "#f59e0b" },
-            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
+            { nome: "Caixa", percentual: 15, cor: "#6b7280" },
           ];
         } else if (perfil === "moderado") {
           alocacao = [
@@ -466,101 +479,173 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({
           ];
         } else {
           alocacao = [
-            { nome: "Ações", percentual: 65, cor: "#4f46e5" },
-            { nome: "Renda Fixa", percentual: 20, cor: "#10b981" },
+            { nome: "Ações", percentual: 50, cor: "#4f46e5" },
+            { nome: "Renda Fixa", percentual: 15, cor: "#10b981" },
             { nome: "Alternativos", percentual: 10, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 20, cor: "#8884d8" },
             { nome: "Caixa", percentual: 5, cor: "#6b7280" },
           ];
         }
         break;
 
       case "riskparity":
-        // Paridade de Risco
-        alocacao = [
-          { nome: "Ações", percentual: 25, cor: "#4f46e5" },
-          { nome: "Títulos de Longo Prazo", percentual: 35, cor: "#10b981" },
-          { nome: "Títulos de Médio Prazo", percentual: 20, cor: "#06b6d4" },
-          { nome: "Commodities", percentual: 15, cor: "#f59e0b" },
-          { nome: "Caixa", percentual: 5, cor: "#6b7280" },
-        ];
+        // Paridade de Risco - ajustado por perfil de risco
+        if (perfil === "conservador" || perfil === "moderado") {
+          alocacao = [
+            { nome: "Ações", percentual: 20, cor: "#4f46e5" },
+            { nome: "Títulos de Longo Prazo", percentual: 30, cor: "#10b981" },
+            { nome: "Títulos de Médio Prazo", percentual: 25, cor: "#06b6d4" },
+            { nome: "Commodities", percentual: 15, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
+          ];
+        } else {
+          // agressivo
+          alocacao = [
+            { nome: "Ações", percentual: 20, cor: "#4f46e5" },
+            { nome: "Títulos de Longo Prazo", percentual: 30, cor: "#10b981" },
+            { nome: "Títulos de Médio Prazo", percentual: 20, cor: "#06b6d4" },
+            { nome: "Commodities", percentual: 15, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 10, cor: "#8884d8" },
+            { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+          ];
+        }
         break;
 
       case "blacklitterman":
-        // Black-Litterman
-        alocacao = [
-          { nome: "Ações Domésticas", percentual: 30, cor: "#4f46e5" },
-          { nome: "Ações Internacionais", percentual: 20, cor: "#8b5cf6" },
-          { nome: "Renda Fixa", percentual: 35, cor: "#10b981" },
-          { nome: "Alternativos", percentual: 10, cor: "#f59e0b" },
-          { nome: "Caixa", percentual: 5, cor: "#6b7280" },
-        ];
-        break;
-
-      case "equalweight":
-        // Pesos Iguais
-        alocacao = [
-          { nome: "Ações", percentual: 25, cor: "#4f46e5" },
-          { nome: "Renda Fixa", percentual: 25, cor: "#10b981" },
-          { nome: "Imóveis", percentual: 25, cor: "#06b6d4" },
-          { nome: "Commodities", percentual: 25, cor: "#f59e0b" },
-        ];
-        break;
-
-      case "momentum":
-        // Momentum e Rotação
-        alocacao = [
-          { nome: "Ações de Alto Momentum", percentual: 40, cor: "#4f46e5" },
-          { nome: "Setores Cíclicos", percentual: 25, cor: "#8b5cf6" },
-          { nome: "Renda Fixa", percentual: 20, cor: "#10b981" },
-          { nome: "Commodities", percentual: 10, cor: "#f59e0b" },
-          { nome: "Caixa", percentual: 5, cor: "#6b7280" },
-        ];
-        break;
-
-      case "minimumvariance":
-        // Variância Mínima
-        alocacao = [
-          {
-            nome: "Ações de Baixa Volatilidade",
-            percentual: 30,
-            cor: "#4f46e5",
-          },
-          {
-            nome: "Renda Fixa de Alta Qualidade",
-            percentual: 45,
-            cor: "#10b981",
-          },
-          {
-            nome: "Títulos Indexados à Inflação",
-            percentual: 15,
-            cor: "#06b6d4",
-          },
-          { nome: "Caixa", percentual: 10, cor: "#6b7280" },
-        ];
-        break;
-
-      default:
-        // Personalizado - alocação baseada no perfil, idade e objetivo
-        if (perfil === "conservador") {
+        // Black-Litterman - ajustado por perfil de risco
+        if (perfil === "conservador" || perfil === "moderado") {
           alocacao = [
-            { nome: "Ações", percentual: 20, cor: "#4f46e5" },
-            { nome: "Renda Fixa", percentual: 60, cor: "#10b981" },
-            { nome: "Alternativos", percentual: 10, cor: "#f59e0b" },
-            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
-          ];
-        } else if (perfil === "moderado") {
-          alocacao = [
-            { nome: "Ações", percentual: 40, cor: "#4f46e5" },
-            { nome: "Renda Fixa", percentual: 40, cor: "#10b981" },
+            { nome: "Ações Domésticas", percentual: 25, cor: "#4f46e5" },
+            { nome: "Ações Internacionais", percentual: 20, cor: "#8b5cf6" },
+            { nome: "Renda Fixa", percentual: 35, cor: "#10b981" },
             { nome: "Alternativos", percentual: 15, cor: "#f59e0b" },
             { nome: "Caixa", percentual: 5, cor: "#6b7280" },
           ];
         } else {
           // agressivo
           alocacao = [
-            { nome: "Ações", percentual: 60, cor: "#4f46e5" },
+            { nome: "Ações Domésticas", percentual: 25, cor: "#4f46e5" },
+            { nome: "Ações Internacionais", percentual: 20, cor: "#8b5cf6" },
+            { nome: "Renda Fixa", percentual: 30, cor: "#10b981" },
+            { nome: "Alternativos", percentual: 10, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 10, cor: "#8884d8" },
+            { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+          ];
+        }
+        break;
+
+      case "equalweight":
+        // Pesos Iguais - ajustado por perfil de risco
+        if (perfil === "conservador" || perfil === "moderado") {
+          alocacao = [
+            { nome: "Ações", percentual: 25, cor: "#4f46e5" },
+            { nome: "Renda Fixa", percentual: 25, cor: "#10b981" },
+            { nome: "Imóveis", percentual: 25, cor: "#06b6d4" },
+            { nome: "Commodities", percentual: 25, cor: "#f59e0b" },
+          ];
+        } else {
+          // agressivo
+          alocacao = [
+            { nome: "Ações", percentual: 20, cor: "#4f46e5" },
             { nome: "Renda Fixa", percentual: 20, cor: "#10b981" },
+            { nome: "Imóveis", percentual: 20, cor: "#06b6d4" },
+            { nome: "Commodities", percentual: 20, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 20, cor: "#8884d8" },
+          ];
+        }
+        break;
+
+      case "momentum":
+        // Momentum e Rotação - ajustado por perfil de risco
+        if (perfil === "conservador" || perfil === "moderado") {
+          alocacao = [
+            { nome: "Ações de Alto Momentum", percentual: 35, cor: "#4f46e5" },
+            { nome: "Setores Cíclicos", percentual: 20, cor: "#8b5cf6" },
+            { nome: "Renda Fixa", percentual: 25, cor: "#10b981" },
+            { nome: "Commodities", percentual: 10, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
+          ];
+        } else {
+          // agressivo
+          alocacao = [
+            { nome: "Ações de Alto Momentum", percentual: 35, cor: "#4f46e5" },
+            { nome: "Setores Cíclicos", percentual: 20, cor: "#8b5cf6" },
+            { nome: "Renda Fixa", percentual: 15, cor: "#10b981" },
+            { nome: "Commodities", percentual: 10, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 15, cor: "#8884d8" },
+            { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+          ];
+        }
+        break;
+
+      case "minimumvariance":
+        // Variância Mínima - sem criptomoedas para conservador e moderado
+        if (perfil === "conservador" || perfil === "moderado") {
+          alocacao = [
+            {
+              nome: "Ações de Baixa Volatilidade",
+              percentual: 25,
+              cor: "#4f46e5",
+            },
+            {
+              nome: "Renda Fixa de Alta Qualidade",
+              percentual: 40,
+              cor: "#10b981",
+            },
+            {
+              nome: "Títulos Indexados à Inflação",
+              percentual: 20,
+              cor: "#06b6d4",
+            },
+            { nome: "Caixa", percentual: 15, cor: "#6b7280" },
+          ];
+        } else {
+          // agressivo - com pequena alocação em criptomoedas
+          alocacao = [
+            {
+              nome: "Ações de Baixa Volatilidade",
+              percentual: 25,
+              cor: "#4f46e5",
+            },
+            {
+              nome: "Renda Fixa de Alta Qualidade",
+              percentual: 40,
+              cor: "#10b981",
+            },
+            {
+              nome: "Títulos Indexados à Inflação",
+              percentual: 15,
+              cor: "#06b6d4",
+            },
+            { nome: "Criptomoedas", percentual: 5, cor: "#8884d8" },
+            { nome: "Caixa", percentual: 15, cor: "#6b7280" },
+          ];
+        }
+        break;
+
+      default:
+        // Personalizado - alocação baseada no perfil, idade e objetivo
+        if (perfil === "conservador") {
+          alocacao = [
+            { nome: "Ações", percentual: 25, cor: "#4f46e5" },
+            { nome: "Renda Fixa", percentual: 50, cor: "#10b981" },
             { nome: "Alternativos", percentual: 15, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 10, cor: "#6b7280" },
+          ];
+        } else if (perfil === "moderado") {
+          alocacao = [
+            { nome: "Ações", percentual: 40, cor: "#4f46e5" },
+            { nome: "Renda Fixa", percentual: 35, cor: "#10b981" },
+            { nome: "Alternativos", percentual: 20, cor: "#f59e0b" },
+            { nome: "Caixa", percentual: 5, cor: "#6b7280" },
+          ];
+        } else {
+          // agressivo
+          alocacao = [
+            { nome: "Ações", percentual: 45, cor: "#4f46e5" },
+            { nome: "Renda Fixa", percentual: 15, cor: "#10b981" },
+            { nome: "Alternativos", percentual: 15, cor: "#f59e0b" },
+            { nome: "Criptomoedas", percentual: 20, cor: "#8884d8" },
             { nome: "Caixa", percentual: 5, cor: "#6b7280" },
           ];
         }
@@ -592,6 +677,14 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({
             },
             { nome: "Previdência Privada", percentual: 15, cor: "#0ea5e9" },
           ];
+
+          // Reduzir criptomoedas para aposentadoria próxima
+          const criptoItem = alocacao.find(
+            (item) => item.nome === "Criptomoedas",
+          );
+          if (criptoItem) {
+            criptoItem.percentual = Math.max(criptoItem.percentual - 5, 0);
+          }
         }
         break;
     }

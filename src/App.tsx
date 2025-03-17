@@ -15,39 +15,9 @@ function App() {
     // Inicializa o banco de dados local ao carregar o aplicativo
     inicializarDB().catch(console.error);
 
-    // Verificar se o modo escuro está ativado no localStorage ou na preferência do sistema
-    const storedDarkMode = localStorage.getItem("darkMode");
-    const isDarkMode =
-      storedDarkMode === "true" ||
-      (storedDarkMode === null &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      // Salvar a preferência se foi determinada pelo sistema
-      if (storedDarkMode === null) {
-        localStorage.setItem("darkMode", "true");
-      }
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    // Adicionar listener para mudanças de tema em outros componentes
-    const handleThemeChange = (e: CustomEvent) => {
-      const { darkMode } = e.detail;
-      if (darkMode) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    };
-
-    window.addEventListener("themeChange", handleThemeChange as EventListener);
-    return () =>
-      window.removeEventListener(
-        "themeChange",
-        handleThemeChange as EventListener,
-      );
+    // Remover qualquer classe dark do documento para garantir modo claro
+    document.documentElement.classList.remove("dark");
+    localStorage.removeItem("darkMode");
   }, []);
 
   return (

@@ -192,26 +192,27 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
       };
 
       try {
-        // Primeiro salvar relatório no banco de dados
-        const reportId = await db.recomendacoes.add(reportDataForPDF);
-
-        // Depois tentar gerar o PDF
+        // Primeiro tentar gerar o PDF
         const success = await exportRecommendationToPDF(reportDataForPDF);
 
-        if (!success) {
-          // Mesmo se falhar o PDF, o relatório já foi salvo
-          toast({
-            variant: "warning",
-            title: "Relatório salvo, mas PDF não gerado",
-            description:
-              "O relatório foi salvo no histórico, mas houve um problema ao gerar o arquivo PDF. Verifique as permissões do sistema.",
-          });
-        } else {
+        if (success) {
+          // Se o PDF for gerado com sucesso, salvar o relatório no banco de dados
+          const reportId = await db.recomendacoes.add(reportDataForPDF);
+
           toast({
             title: "Relatório gerado com sucesso",
             description:
               "O relatório foi salvo e está disponível no histórico.",
           });
+        } else {
+          // Se falhar o PDF, mostrar mensagem de erro
+          toast({
+            variant: "destructive",
+            title: "Erro ao gerar PDF",
+            description:
+              "Não foi possível gerar o arquivo PDF. Verifique as permissões do sistema e tente novamente.",
+          });
+          return; // Não prosseguir se o PDF falhar
         }
 
         onSave(reportData);
@@ -270,24 +271,18 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
   };
 
   return (
-    <div className="w-full h-full bg-background p-4 md:p-6 dark:bg-gray-900">
-      <Card className="w-full h-full overflow-hidden flex flex-col dark:bg-gray-800 dark:border-gray-700">
+    <div className="w-full h-full bg-background p-4 md:p-6">
+      <Card className="w-full h-full overflow-hidden flex flex-col">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl dark:text-white">
-                Gerador de Relatórios
-              </CardTitle>
-              <CardDescription className="dark:text-gray-300">
+              <CardTitle className="text-2xl">Gerador de Relatórios</CardTitle>
+              <CardDescription>
                 Personalize e gere relatórios de recomendação de investimentos
               </CardDescription>
             </div>
             <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                className="dark:text-gray-300 dark:border-gray-600"
-              >
+              <Button variant="outline" onClick={onCancel} className="">
                 Cancelar
               </Button>
               <Button onClick={handleGenerateReport} disabled={isGenerating}>
@@ -308,14 +303,14 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
         </CardHeader>
 
         {recommendations.length === 0 && (
-          <div className="mx-6 mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-md">
+          <div className="mx-6 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
             <div className="flex items-start">
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 mt-0.5 mr-2" />
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 mr-2" />
               <div>
-                <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">
+                <p className="text-amber-800 text-sm font-medium">
                   Nenhuma recomendação encontrada
                 </p>
-                <p className="text-amber-700 dark:text-amber-400 text-xs mt-1">
+                <p className="text-amber-700 text-xs mt-1">
                   Crie uma recomendação primeiro para gerar um relatório
                   completo com dados personalizados.
                 </p>
@@ -330,7 +325,7 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
             onValueChange={setActiveTab}
             className="flex flex-col h-full"
           >
-            <div className="px-6 border-b dark:border-gray-700">
+            <div className="px-6 border-b">
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="customize" className="flex items-center">
                   <FileText className="h-4 w-4 mr-2" />
@@ -377,12 +372,12 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
           </Tabs>
         </CardContent>
 
-        <CardFooter className="border-t p-4 dark:border-gray-700">
+        <CardFooter className="border-t p-4">
           <div className="flex justify-between w-full items-center">
             <Button
               variant="outline"
               onClick={() => navigate("/history")}
-              className="dark:text-gray-300 dark:border-gray-600"
+              className=""
             >
               <FileText className="h-4 w-4 mr-2" />
               Ver Histórico de Relatórios
@@ -391,7 +386,7 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
             <Button
               variant="outline"
               onClick={handleGenerateReport}
-              className="dark:text-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="hover:bg-gray-100"
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar como PDF

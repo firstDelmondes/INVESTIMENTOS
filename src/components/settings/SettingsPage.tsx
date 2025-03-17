@@ -37,28 +37,12 @@ import {
 
 const SettingsPage = () => {
   const { toast } = useToast();
-  const [darkMode, setDarkMode] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [companyName, setCompanyName] = useState("AEGIS Capital");
   const [dataPath, setDataPath] = useState("");
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-
-  // Verificar se o modo escuro está ativado no localStorage ou na preferência do sistema
-  useEffect(() => {
-    const isDarkMode =
-      localStorage.getItem("darkMode") === "true" ||
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    setDarkMode(isDarkMode);
-
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
 
   // Simular obtenção do caminho de dados do Electron
   useEffect(() => {
@@ -79,22 +63,10 @@ const SettingsPage = () => {
     getDataPath();
   }, []);
 
-  const handleDarkModeChange = (checked: boolean) => {
-    setDarkMode(checked);
-    localStorage.setItem("darkMode", checked.toString());
-
-    if (checked) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
-
   const handleSaveSettings = () => {
     // Salvar configurações no localStorage
     localStorage.setItem("companyName", companyName);
     localStorage.setItem("autoSave", autoSave.toString());
-    localStorage.setItem("darkMode", darkMode.toString());
 
     toast({
       title: "Configurações salvas",
@@ -134,7 +106,6 @@ const SettingsPage = () => {
         settings: {
           companyName,
           autoSave,
-          darkMode,
         },
         exportDate: new Date().toISOString(),
       };
@@ -212,10 +183,6 @@ const SettingsPage = () => {
                   importData.settings.autoSave.toString(),
                 );
               }
-
-              if (importData.settings.darkMode !== undefined) {
-                handleDarkModeChange(importData.settings.darkMode);
-              }
             }
 
             toast({
@@ -249,12 +216,10 @@ const SettingsPage = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-col gap-6 p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
+      <div className="flex flex-col gap-6 p-6 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight dark:text-white">
-              Configurações
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
             <p className="text-muted-foreground">
               Gerencie as configurações da sua aplicação de alocação de
               investimentos.
@@ -267,41 +232,33 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-2">
             <TabsTrigger value="general">Geral</TabsTrigger>
-            <TabsTrigger value="appearance">Aparência</TabsTrigger>
             <TabsTrigger value="data">Dados</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-4 mt-4">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <Card>
               <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Configurações Gerais
-                </CardTitle>
-                <CardDescription className="dark:text-gray-400">
+                <CardTitle>Configurações Gerais</CardTitle>
+                <CardDescription>
                   Configure as opções gerais da aplicação.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company-name" className="dark:text-white">
-                    Nome da Empresa
-                  </Label>
+                  <Label htmlFor="company-name">Nome da Empresa</Label>
                   <Input
                     id="company-name"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="auto-save" className="dark:text-white">
-                      Salvamento Automático
-                    </Label>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
+                    <Label htmlFor="auto-save">Salvamento Automático</Label>
+                    <p className="text-sm text-muted-foreground">
                       Salvar automaticamente as recomendações como rascunho
                     </p>
                   </div>
@@ -315,74 +272,35 @@ const SettingsPage = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="appearance" className="space-y-4 mt-4">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="dark:text-white">Aparência</CardTitle>
-                <CardDescription className="dark:text-gray-400">
-                  Personalize a aparência da aplicação.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="dark-mode" className="dark:text-white">
-                      Modo Escuro
-                    </Label>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Ativar tema escuro para a aplicação
-                    </p>
-                  </div>
-                  <Switch
-                    id="dark-mode"
-                    checked={darkMode}
-                    onCheckedChange={handleDarkModeChange}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="data" className="space-y-4 mt-4">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <Card>
               <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Gerenciamento de Dados
-                </CardTitle>
-                <CardDescription className="dark:text-gray-400">
+                <CardTitle>Gerenciamento de Dados</CardTitle>
+                <CardDescription>
                   Gerencie os dados da aplicação e opções de backup.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="dark:text-white">
-                    Localização dos Dados
-                  </Label>
-                  <div className="p-3 bg-muted dark:bg-gray-700 rounded-md text-sm font-mono break-all dark:text-gray-300">
+                  <Label>Localização dos Dados</Label>
+                  <div className="p-3 bg-muted rounded-md text-sm font-mono break-all">
                     {dataPath}
                   </div>
                 </div>
 
-                <Separator className="my-4 dark:bg-gray-700" />
+                <Separator className="my-4" />
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-medium dark:text-white">
-                    Ações de Dados
-                  </h3>
+                  <h3 className="text-lg font-medium">Ações de Dados</h3>
                   <div className="flex flex-col space-y-2">
                     <Button
                       variant="outline"
-                      className="dark:text-white dark:border-gray-600"
                       onClick={() => setIsExportDialogOpen(true)}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Exportar Todos os Dados
                     </Button>
-                    <Button
-                      variant="outline"
-                      className="dark:text-white dark:border-gray-600"
-                      onClick={handleImportData}
-                    >
+                    <Button variant="outline" onClick={handleImportData}>
                       <Upload className="mr-2 h-4 w-4" />
                       Importar Dados
                     </Button>

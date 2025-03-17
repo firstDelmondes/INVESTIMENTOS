@@ -221,7 +221,9 @@ const HistoryManager = ({
   // Calcular taxa de conclusão
   const getCompletionRate = () => {
     if (statistics.totalRecommendations === 0) return "0%";
-    return `${Math.round((statistics.byStatus.final / statistics.totalRecommendations) * 100)}%`;
+    const rate =
+      (statistics.byStatus.final / statistics.totalRecommendations) * 100;
+    return `${Math.round(isNaN(rate) ? 0 : rate)}%`;
   };
 
   // Implementação das funções de callback
@@ -375,7 +377,7 @@ const HistoryManager = ({
     <div className="w-full h-full bg-background p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight">
             Histórico de Recomendações
           </h1>
           <p className="text-muted-foreground">
@@ -388,7 +390,7 @@ const HistoryManager = ({
             variant="outline"
             size="sm"
             onClick={handleExportHistory}
-            className="dark:text-white dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="hover:bg-gray-100"
           >
             <FileDown className="mr-2 h-4 w-4" />
             Exportar Histórico
@@ -427,58 +429,65 @@ const HistoryManager = ({
         <TabsContent value="statistics" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Risk Profile Distribution */}
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <Card>
               <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Distribuição por Perfil de Risco
-                </CardTitle>
-                <CardDescription className="dark:text-gray-300">
-                  Detalhamento por perfil de risco
-                </CardDescription>
+                <CardTitle>Distribuição por Perfil de Risco</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">Conservador</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byRiskProfile.conservative}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Conservador</span>
+                    <span>{statistics.byRiskProfile.conservative}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-blue-500 h-2.5 rounded-full"
+                      className="h-full bg-blue-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byRiskProfile.conservative / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byRiskProfile.conservative /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">Moderado</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byRiskProfile.moderate}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Moderado</span>
+                    <span>{statistics.byRiskProfile.moderate}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-yellow-500 h-2.5 rounded-full"
+                      className="h-full bg-green-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byRiskProfile.moderate / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byRiskProfile.moderate /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">Agressivo</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byRiskProfile.aggressive}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Agressivo</span>
+                    <span>{statistics.byRiskProfile.aggressive}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-red-500 h-2.5 rounded-full"
+                      className="h-full bg-red-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byRiskProfile.aggressive / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byRiskProfile.aggressive /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
@@ -487,159 +496,160 @@ const HistoryManager = ({
             </Card>
 
             {/* Status Distribution */}
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <Card>
               <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Distribuição por Status
-                </CardTitle>
-                <CardDescription className="dark:text-gray-300">
-                  Rascunhos vs. recomendações finais
-                </CardDescription>
+                <CardTitle>Status das Recomendações</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">Rascunho</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byStatus.draft}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Rascunho</span>
+                    <span>{statistics.byStatus.draft}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-gray-500 h-2.5 rounded-full"
+                      className="h-full bg-amber-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byStatus.draft / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byStatus.draft /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">Final</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byStatus.final}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Final</span>
+                    <span>{statistics.byStatus.final}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-green-500 h-2.5 rounded-full"
+                      className="h-full bg-emerald-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byStatus.final / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byStatus.final /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex justify-between font-medium">
+                      <span>Taxa de Conclusão</span>
+                      <span>{getCompletionRate()}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Strategy Distribution */}
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <Card>
               <CardHeader>
-                <CardTitle className="dark:text-white">
-                  Distribuição por Estratégia
-                </CardTitle>
-                <CardDescription className="dark:text-gray-300">
-                  Detalhamento por estratégia de alocação
-                </CardDescription>
+                <CardTitle>Estratégias Utilizadas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">
-                      Portfólio Permanente
-                    </span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byStrategy.permanentPortfolio}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Portfólio Permanente</span>
+                    <span>{statistics.byStrategy.permanentPortfolio}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-purple-500 h-2.5 rounded-full"
+                      className="h-full bg-purple-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byStrategy.permanentPortfolio / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byStrategy.permanentPortfolio /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">All Weather</span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byStrategy.allWeather}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>All Weather</span>
+                    <span>{statistics.byStrategy.allWeather}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-indigo-500 h-2.5 rounded-full"
+                      className="h-full bg-indigo-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byStrategy.allWeather / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byStrategy.allWeather /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="dark:text-gray-300">
-                      Estratégia Personalizada
-                    </span>
-                    <span className="font-medium dark:text-white">
-                      {statistics.byStrategy.custom}
-                    </span>
+                  <div className="flex justify-between">
+                    <span>Personalizada</span>
+                    <span>{statistics.byStrategy.custom}</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="bg-teal-500 h-2.5 rounded-full"
+                      className="h-full bg-cyan-500 rounded-full"
                       style={{
-                        width: `${statistics.totalRecommendations ? (statistics.byStrategy.custom / statistics.totalRecommendations) * 100 : 0}%`,
+                        width: `${
+                          statistics.totalRecommendations > 0
+                            ? (statistics.byStrategy.custom /
+                                statistics.totalRecommendations) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Resumo</CardTitle>
-              <CardDescription className="dark:text-gray-300">
-                Estatísticas gerais de recomendações
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-muted/50 p-4 rounded-lg dark:bg-gray-700/50">
-                  <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">
-                    Total de Recomendações
-                  </h3>
-                  <p className="text-2xl font-bold dark:text-white">
-                    {statistics.totalRecommendations}
-                  </p>
+            {/* Summary Card */}
+            <Card className="md:col-span-3">
+              <CardHeader>
+                <CardTitle>Resumo do Histórico</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">
+                      Total de Recomendações
+                    </h3>
+                    <p className="text-3xl font-bold">
+                      {statistics.totalRecommendations}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">Perfil Mais Comum</h3>
+                    <p className="text-3xl font-bold">{getMostUsedProfile()}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">
+                      Estratégia Mais Usada
+                    </h3>
+                    <p className="text-3xl font-bold">
+                      {getMostUsedStrategy()}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-muted/50 p-4 rounded-lg dark:bg-gray-700/50">
-                  <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">
-                    Perfil Mais Usado
-                  </h3>
-                  <p className="text-2xl font-bold dark:text-white">
-                    {getMostUsedProfile()}
-                  </p>
-                </div>
-                <div className="bg-muted/50 p-4 rounded-lg dark:bg-gray-700/50">
-                  <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">
-                    Estratégia Mais Usada
-                  </h3>
-                  <p className="text-2xl font-bold dark:text-white">
-                    {getMostUsedStrategy()}
-                  </p>
-                </div>
-                <div className="bg-muted/50 p-4 rounded-lg dark:bg-gray-700/50">
-                  <h3 className="text-sm font-medium text-muted-foreground dark:text-gray-300">
-                    Taxa de Conclusão
-                  </h3>
-                  <p className="text-2xl font-bold dark:text-white">
-                    {getCompletionRate()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

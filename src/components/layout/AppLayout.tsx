@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   BarChart,
   History,
@@ -9,8 +9,7 @@ import {
   FileText,
   Menu,
   X,
-  Moon,
-  Sun,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,63 +20,15 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
-
-  // Verificar se o modo escuro está ativado no localStorage ou na preferência do sistema
-  useEffect(() => {
-    const storedDarkMode = localStorage.getItem("darkMode");
-    const isDarkMode =
-      storedDarkMode === "true" ||
-      (storedDarkMode === null &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-    setDarkMode(isDarkMode);
-
-    // Aplicar classe dark ao documento
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    // Adicionar listener para mudanças na preferência do sistema
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (localStorage.getItem("darkMode") === null) {
-        setDarkMode(e.matches);
-        if (e.matches) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", newDarkMode.toString());
-
-    // Aplicar ou remover classe dark do documento
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    // Disparar evento personalizado para notificar outros componentes
-    window.dispatchEvent(
-      new CustomEvent("themeChange", { detail: { darkMode: newDarkMode } }),
-    );
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   const navigation = [
@@ -96,13 +47,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
       <div
-        className={`${sidebarCollapsed ? "w-[80px]" : "w-[280px]"} transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700`}
+        className={`${sidebarCollapsed ? "w-[80px]" : "w-[280px]"} transition-all duration-300 ease-in-out bg-white border-r border-gray-200`}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
             {!sidebarCollapsed && (
               <div className="flex items-center">
                 <img
@@ -110,9 +61,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   src="/logo.png"
                   alt="AEGIS Capital"
                 />
-                <h1 className="ml-2 text-xl font-semibold dark:text-white">
-                  AEGIS Capital
-                </h1>
+                <h1 className="ml-2 text-xl font-semibold">AEGIS Capital</h1>
               </div>
             )}
             <Button
@@ -121,7 +70,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               onClick={toggleSidebar}
               className="h-8 w-8"
             >
-              <Menu className="h-5 w-5 dark:text-gray-300" />
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
 
@@ -133,10 +82,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive(item.href) ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive(item.href) ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"}`}
                   >
                     <Icon
-                      className={`mr-3 flex-shrink-0 h-5 w-5 ${isActive(item.href) ? "text-blue-500 dark:text-blue-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400"}`}
+                      className={`mr-3 flex-shrink-0 h-5 w-5 ${isActive(item.href) ? "text-blue-500" : "text-gray-400 group-hover:text-gray-500"}`}
                     />
                     {!sidebarCollapsed && item.name}
                   </Link>
@@ -145,18 +94,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </nav>
           </ScrollArea>
 
-          <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleDarkMode}
-              className="h-8 w-8"
+              variant="outline"
+              size="sm"
+              onClick={handleGoBack}
+              className="flex items-center"
             >
-              {darkMode ? (
-                <Sun className="h-5 w-5 text-yellow-500" />
-              ) : (
-                <Moon className="h-5 w-5 text-gray-500" />
-              )}
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {!sidebarCollapsed && "Voltar"}
             </Button>
           </div>
         </div>

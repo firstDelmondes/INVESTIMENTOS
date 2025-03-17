@@ -369,11 +369,11 @@ export const exportRecommendationToPDF = (
       }
 
       // Adicionar fatores específicos por horizonte de investimento
-      const anosMatch =
+      const horizAnosMatch =
         recommendation.horizonteInvestimento?.match(/(\d+)\s*anos/);
-      const anos = anosMatch ? parseInt(anosMatch[1]) : 5;
+      const horizAnos = horizAnosMatch ? parseInt(horizAnosMatch[1]) : 5;
 
-      if (anos <= 3) {
+      if (horizAnos <= 3) {
         // Curto prazo
         riskFactors.push(
           "• Horizonte curto limita a capacidade de recuperação após quedas de mercado",
@@ -381,7 +381,7 @@ export const exportRecommendationToPDF = (
         riskFactors.push(
           "• Necessidade de liquidez pode forçar vendas em momentos desfavoráveis de mercado",
         );
-      } else if (anos >= 10) {
+      } else if (horizAnos >= 10) {
         // Longo prazo
         riskFactors.push(
           "• Mudanças significativas no cenário econômico global ao longo de décadas",
@@ -457,16 +457,16 @@ export const exportRecommendationToPDF = (
       }
 
       // Ajustar por horizonte de investimento
-      const anosMatch =
+      const perfAnosMatch =
         recommendation.horizonteInvestimento?.match(/(\d+)\s*anos/);
-      const anos = anosMatch ? parseInt(anosMatch[1]) : 5;
+      const perfAnos = perfAnosMatch ? parseInt(perfAnosMatch[1]) : 5;
 
-      if (anos >= 10) {
+      if (perfAnos >= 10) {
         // Longo prazo
-        performanceAdicional += ` Com seu horizonte de ${anos} anos, a probabilidade de atingir retornos dentro ou acima da faixa projetada aumenta significativamente, permitindo capturar múltiplos ciclos de mercado e reduzir o impacto da volatilidade de curto prazo.`;
-      } else if (anos <= 3) {
+        performanceAdicional += ` Com seu horizonte de ${perfAnos} anos, a probabilidade de atingir retornos dentro ou acima da faixa projetada aumenta significativamente, permitindo capturar múltiplos ciclos de mercado e reduzir o impacto da volatilidade de curto prazo.`;
+      } else if (perfAnos <= 3) {
         // Curto prazo
-        performanceAdicional += ` Considerando seu horizonte de apenas ${anos} anos, a volatilidade de curto prazo pode impactar significativamente os resultados, com maior dispersão possível em torno da projeção base.`;
+        performanceAdicional += ` Considerando seu horizonte de apenas ${perfAnos} anos, a volatilidade de curto prazo pode impactar significativamente os resultados, com maior dispersão possível em torno da projeção base.`;
       }
 
       const performanceText = `${performanceBase} (considerando cenário base de mercado). ${performanceAdicional}`;
